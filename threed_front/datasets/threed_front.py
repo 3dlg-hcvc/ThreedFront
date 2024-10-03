@@ -308,13 +308,28 @@ class CachedThreedFront(ThreedFront):
         D = np.load(self._path_to_room(i))
 
         # object features
-        output_dict = {
-            "class_labels": D["class_labels"],
-            "translations": D["translations"],
-            "sizes": D["sizes"],
-            "angles": D["angles"],
+        if "unified" in self.config["dataset_directory"]:
+            if "bedroom" in self._tags[i].lower():
+                room_type = np.asarray(0, dtype=np.float32)
+            elif "living" in self._tags[i].lower():
+                room_type = np.asarray(1, dtype=np.float32)
+            elif "dining" in self._tags[i].lower():
+                room_type = np.asarray(2, dtype=np.float32)
+            output_dict = {
+                "room_type": room_type,
+                "class_labels": D["class_labels"],
+                "translations": D["translations"],
+                "sizes": D["sizes"],
+                "angles": D["angles"],
+            }
+        else:
+            output_dict = {
+                "class_labels": D["class_labels"],
+                "translations": D["translations"],
+                "sizes": D["sizes"],
+                "angles": D["angles"],
 
-        }
+            }
         if "objfeats" in D.keys():
             output_dict[ "objfeats" ] = D["objfeats"]
         if "objfeats_32" in D.keys():

@@ -71,6 +71,16 @@ class BaseDataset(Dataset):
         return inner
 
     @staticmethod
+    def with_rooms(scene_types):
+        def inner(scene):
+            for scene_type in scene_types:
+                if scene_type in scene.scene_type:
+                    return scene
+            return False
+
+        return inner
+
+    @staticmethod
     def room_smaller_than_along_axis(max_size, axis=1):
         def inner(scene):
             return scene if scene.bbox[1][axis] <= max_size else False

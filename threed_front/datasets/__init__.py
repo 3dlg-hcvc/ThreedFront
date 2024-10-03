@@ -19,12 +19,23 @@ __all__ = [
 
 
 def get_raw_dataset(config, filter_fn=lambda s: s, path_to_bounds=None,
-    split=["train", "val"], include_edges=False, include_room_mask=True):
+    split=["train", "val"], include_edges=False, include_room_mask=True, generation=False, room_type=None):
     dataset_type = config["dataset_type"]
     if "cached" in dataset_type:
         # Make the train/test/validation splits
         splits_builder = CSVSplitsBuilder(config["annotation_file"])
         split_scene_ids = splits_builder.get_splits(split)
+        # only leave one type of scene if this is scene generation process:
+        
+        if generation:
+            if room_type == 0:
+                room_type = "bedroom"
+            elif room_type == 1:
+                room_type = "livingroom"
+            elif room_type == 2:
+                room_type = "diningroom"
+            split_scene_ids = [s for s in split_scene_ids if room_type in s.lower()]
+        
 
         dataset = CachedThreedFront(
             config["dataset_directory"],
@@ -149,9 +160,9 @@ def filter_function(config, split=["train", "val"], without_lamps=False):
             ),
             BaseDataset.with_scene_ids(split_scene_ids)
         )
-    elif "UNIFIED_filter" in config["filter_fn"]:
+    elif "threed_front_unified" in config["filter_fn"]:
         return BaseDataset.filter_compose(
-            BaseDataset.with_rooms(["bed", "living", "dining", "library"]),
+            BaseDataset.with_rooms(["bed", "living", "dining"]),
             BaseDataset.at_least_boxes(3),
             BaseDataset.at_most_boxes(21),
             BaseDataset.with_object_types(list(THREED_FRONT_UNIFIED_FURNITURE.keys())),

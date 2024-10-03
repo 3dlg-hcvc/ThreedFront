@@ -76,7 +76,7 @@ def main(argv):
         threed_front_results = pickle.load(f)
     assert isinstance(threed_front_results, ThreedFrontResults)
     room_type = next((
-        type for type in ["diningroom", "livingroom", "bedroom", "library"] \
+        type for type in ["diningroom", "livingroom", "bedroom", "library", "unified"] \
         if type in os.path.basename(threed_front_results.config["data"]["dataset_directory"])
         ), None)
     assert room_type is not None
@@ -102,6 +102,7 @@ def main(argv):
                 os.remove(os.path.join(args.output_directory, fi))
     else:
         os.makedirs(args.output_directory, exist_ok=True)
+    # breakpoint()
 
     # Build the dataset of 3D models
     objects_dataset = ThreedFutureDataset.from_pickled_dataset(
@@ -156,7 +157,7 @@ def main(argv):
         )
         threed_front_results.render_projection(
             i, objects_dataset, image_path, scene, 
-            floor_texture=np.random.choice(floor_textures), 
+            floor_texture=np.random.choice(floor_textures),
             floor_color=args.floor_color, 
             retrieve_mode="size" if args.retrieve_by_size else None,
             color_palette=color_palette
